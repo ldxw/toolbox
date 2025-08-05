@@ -1,0 +1,45 @@
+#version: '3.8'
+
+services:
+  toolbox:
+    image: ldxw/toolbox:latest
+    container_name: toolbox-web
+    ports:
+      - "8281:80"
+    volumes:
+      - ./www:/app/www
+      #- ./entrypoint.sh:/entrypoint.sh:ro
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+      #- OVERWRITE=1 www文件默认不覆盖0 1是覆盖
+    depends_on:
+      - toolbox-mysql
+    networks:
+      - toolbox-net
+      
+  toolbox-mysql:
+    image: amd64/mysql:5.7.44
+    container_name: toolbox-mysql
+    restart: always
+    #ports:
+    #  - 3906:3306
+    volumes:
+      - ./mysql/conf/my.cnf:/etc/mysql/my.cnf
+      - ./mysql/logs:/logs
+      - ./mysql/data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=xxx
+      - MYSQL_USER=toolbox
+      - MYSQL_PASSWORD=xxx
+      - MYSQL_DATABASE=toolbox
+      - TZ=Asia/Shanghai
+    networks:
+      - toolbox-net
+
+networks:
+  toolbox-net:
+    external: false
+    ipam:
+      config:
+        - subnet: 172.240.0.0/16

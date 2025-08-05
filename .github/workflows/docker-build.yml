@@ -1,0 +1,83 @@
+name: 本地加官方zip构建 (Docker Hub + GHCR)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (例如: 1.9.0)'
+        required: true
+        default: '1.9.0'
+      use_release_zip:
+        description: '是否使用 release ZIP 构建？'
+        required: false
+        default: 'false'
+        type: boolean
+      update_latest:
+        description: '是否更新 latest 标签？'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare Tag List
+        id: prepare_tags
+        run: |
+          TAG_SUFFIX="v${{ inputs.version }}"
+          if [ "${{ inputs.use_release_zip }}" = "true" ]; then
+            TAG_SUFFIX="toolbox-${TAG_SUFFIX}"
+          fi
+
+          echo "Generating tags with suffix: $TAG_SUFFIX"
+
+          {
+            echo "tags<<EOF"
+            echo "ldxw/toolbox:$TAG_SUFFIX"
+            echo "ghcr.io/${{ github.repository_owner }}/toolbox:$TAG_SUFFIX"
+            if [ "${{ inputs.update_latest }}" = "true" ]; then
+              echo "ldxw/toolbox:latest"
+              echo "ghcr.io/${{ github.repository_owner }}/toolbox:latest"
+            fi  
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and Push Docker Images
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.prepare_tags.outputs.tags }}
+          build-args: |
+            VERSION=${{ inputs.version }}
+            USE_RELEASE_ZIP=${{ inputs.use_release_zip }}
