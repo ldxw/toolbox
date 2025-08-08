@@ -48,7 +48,7 @@ INSERT INTO `toolbox_config` (`key`, `value`) VALUES
 ('captcha_id', ''),
 ('captcha_key', ''),
 ('ip_type', '0'),
-('cdn_cdnjs', '//lib.baomitu.com/'),
+('cdn_cdnjs', 'https://s4.zstatic.net/ajax/libs/'),
 ('cdn_npm', 'https://unpkg.com/'),
 ('description', '这是一个非常Nice的在线工具箱'),
 ('foot_code', ''),
