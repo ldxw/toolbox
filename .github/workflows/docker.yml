@@ -14,6 +14,13 @@ on:
         description: "版本号（留空则读 config/app.php，例如 1.12 或 v1.12）"
         required: false
         default: ""
+  # 默认分支上还没有本工作流时无法用 workflow_dispatch 触发，
+  # 所以 docker 分支上的提交也会自动构建一次；合并进默认分支后可只用手动触发。
+  push:
+    branches:
+      - docker
+    paths-ignore:
+      - "**.md"
 
 permissions:
   contents: read
