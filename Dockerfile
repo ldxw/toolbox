@@ -59,6 +59,8 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 # 应用源码（构建上下文 = 仓库根目录）
+# 版本标记：entrypoint 靠它判断镜像是否更新，从而决定要不要把代码同步进 ./data 卷
+ARG APP_REVISION=unknown
 COPY . /usr/src/www
 
 # 安装依赖 + 装好后清掉不需要进运行时的东西
@@ -69,6 +71,7 @@ RUN set -eux; \
     php think service:discover >/dev/null 2>&1 || true; \
     php think vendor:publish >/dev/null 2>&1 || true; \
     rm -rf /usr/src/www/.git /usr/src/www/.github /usr/src/www/.travis.yml; \
+    echo "$APP_REVISION" > /usr/src/www/.docker_revision; \
     mkdir -p /usr/src/www/runtime; \
     rm -rf /usr/src/www/runtime/*; \
     adduser -D -s /sbin/nologin -g www www; \

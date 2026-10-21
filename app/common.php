@@ -356,9 +356,14 @@ if (!function_exists('is_valid_url')) {
 function real_ip($type=0){
     $ip = $_SERVER['REMOTE_ADDR'];
 
-    // 3 = 腾讯 EdgeOne / 通用「真实 IP」头：EO-Connecting-IP（EdgeOne 国际版写入）、True-Client-IP
-    if($type==3){
-        foreach(['HTTP_EO_CONNECTING_IP','HTTP_TRUE_CLIENT_IP'] as $hk){
+    // 3 = 腾讯 EdgeOne：EO-Connecting-IP（回源时写入）
+    // 4 = Cloudflare：CF-Connecting-IP（部分套餐另有 True-Client-IP）
+    // 两者都取不到时回落 REMOTE_ADDR
+    if($type==3 || $type==4){
+        $cdn_headers = $type==3
+            ? ['HTTP_EO_CONNECTING_IP', 'HTTP_TRUE_CLIENT_IP']
+            : ['HTTP_CF_CONNECTING_IP', 'HTTP_TRUE_CLIENT_IP'];
+        foreach($cdn_headers as $hk){
             if(!empty($_SERVER[$hk]) && filter_var($_SERVER[$hk], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
                 return $_SERVER[$hk];
             }

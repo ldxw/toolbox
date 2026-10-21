@@ -121,7 +121,8 @@ class System extends BaseController
             ['name'=>'0_X_FORWARDED_FOR', 'ip'=>real_ip(0), 'city'=>get_ip_city(real_ip(0))],
             ['name'=>'1_X_REAL_IP', 'ip'=>real_ip(1), 'city'=>get_ip_city(real_ip(1))],
             ['name'=>'2_REMOTE_ADDR', 'ip'=>real_ip(2), 'city'=>get_ip_city(real_ip(2))],
-            ['name'=>'3_EO_CONNECTING_IP', 'ip'=>real_ip(3), 'city'=>get_ip_city(real_ip(3))]
+            ['name'=>'3_EO_CONNECTING_IP', 'ip'=>real_ip(3), 'city'=>get_ip_city(real_ip(3))],
+            ['name'=>'4_CF_CONNECTING_IP', 'ip'=>real_ip(4), 'city'=>get_ip_city(real_ip(4))]
         ];
         return msg('ok', 'success', $result);
     }
