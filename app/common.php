@@ -355,6 +355,17 @@ if (!function_exists('is_valid_url')) {
 
 function real_ip($type=0){
     $ip = $_SERVER['REMOTE_ADDR'];
+
+    // 3 = 腾讯 EdgeOne / 通用「真实 IP」头：EO-Connecting-IP（EdgeOne 国际版写入）、True-Client-IP
+    if($type==3){
+        foreach(['HTTP_EO_CONNECTING_IP','HTTP_TRUE_CLIENT_IP'] as $hk){
+            if(!empty($_SERVER[$hk]) && filter_var($_SERVER[$hk], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
+                return $_SERVER[$hk];
+            }
+        }
+        return $ip;
+    }
+
     if($type<=0 && isset($_SERVER['HTTP_X_FORWARDED_FOR']) && preg_match_all('#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#s', $_SERVER['HTTP_X_FORWARDED_FOR'], $matches)) {
         foreach ($matches[0] AS $xip) {
             if (filter_var($xip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
@@ -366,6 +377,11 @@ function real_ip($type=0){
         $ip = $_SERVER['HTTP_CLIENT_IP'];
     } elseif ($type<=1 && isset($_SERVER['HTTP_CF_CONNECTING_IP']) && filter_var($_SERVER['HTTP_CF_CONNECTING_IP'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
         $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
+    } elseif ($type<=1 && isset($_SERVER['HTTP_EO_CONNECTING_IP']) && filter_var($_SERVER['HTTP_EO_CONNECTING_IP'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+        // 腾讯 EdgeOne（含国际版）
+        $ip = $_SERVER['HTTP_EO_CONNECTING_IP'];
+    } elseif ($type<=1 && isset($_SERVER['HTTP_TRUE_CLIENT_IP']) && filter_var($_SERVER['HTTP_TRUE_CLIENT_IP'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+        $ip = $_SERVER['HTTP_TRUE_CLIENT_IP'];
     } elseif ($type<=1 && isset($_SERVER['HTTP_ALI_CDN_REAL_IP']) && filter_var($_SERVER['HTTP_ALI_CDN_REAL_IP'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
         $ip = $_SERVER['HTTP_ALI_CDN_REAL_IP'];
     } elseif ($type<=1 && isset($_SERVER['HTTP_X_REAL_IP']) && filter_var($_SERVER['HTTP_X_REAL_IP'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {

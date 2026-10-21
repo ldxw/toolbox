@@ -107,6 +107,8 @@ docker compose up -d
 
 镜像标签：`latest` 与版本号（例如 `v1.12`）。
 
+放在 CDN 后面时，后台「用户IP地址获取方式」请选 `3_EO_CONNECTING_IP`（腾讯 EdgeOne 回源头 `EO-Connecting-IP`）；云厂商其它 CDN 选 `0_X_FORWARDED_FOR` 或 `1_X_REAL_IP`。
+
 数据库默认使用 `mariadb:10.11`（amd64 / arm64 都有镜像），数据目录 `/var/lib/mysql` 挂在 `db_data` 卷上。要改用 MySQL 就把 `.env` 里的 `DB_IMAGE` 设成 `mysql:5.7` 或 `mysql:8.0`，其余配置不用动。
 
 #### 🍓 鸣谢
