@@ -71,8 +71,6 @@ RUN set -eux; \
     rm -rf /usr/src/www/.git /usr/src/www/.github /usr/src/www/.travis.yml; \
     mkdir -p /usr/src/www/runtime; \
     rm -rf /usr/src/www/runtime/*; \
-    # 容器里的数据库主机名是 compose 服务名，安装页默认的 localhost 永远连不上
-    sed -i "s/hostname: 'localhost'/hostname: 'db'/" /usr/src/www/view/install/index.html; \
     adduser -D -s /sbin/nologin -g www www; \
     mkdir -p /app; \
     chown -R www:www /usr/src/www /app /var/lib/nginx /var/log/nginx

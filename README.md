@@ -97,7 +97,7 @@ docker compose up -d
 
 | 项目 | 填写值 |
 | --- | --- |
-| 地址 | `db` |
+| 地址 | `db`（compose 的服务名，容器里填 `localhost` 连不到数据库） |
 | 端口 | `3306` |
 | 库名 | `.env` 里的 `DB_DATABASE` |
 | 用户名 | `.env` 里的 `DB_USERNAME` |
