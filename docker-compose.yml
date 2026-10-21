@@ -32,12 +32,15 @@ services:
       start_period: 20s
 
   db:
-    image: mysql:8.0
+    # 官方 mysql:5.7 只有 amd64；arm64 机器把 DB_IMAGE 换成 mariadb:10.6 或 mysql:8.0 即可
+    image: ${DB_IMAGE:-mysql:5.7}
     container_name: toolbox-db
     restart: unless-stopped
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
+      # 5.7 的默认认证插件就是 mysql_native_password，这里显式写出来避免老客户端踩坑
+      - --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?请在 .env 中设置 DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE:-toolbox}

@@ -107,6 +107,8 @@ docker compose up -d
 
 镜像标签：`latest` 与版本号（例如 `v1.12`）。
 
+数据库默认使用 `mysql:5.7`（5.7 官方镜像只有 amd64）；在 arm64 机器上把 `.env` 里的 `DB_IMAGE` 改成 `mariadb:10.6` 或 `mysql:8.0` 即可，其余配置不用动。
+
 #### 🍓 鸣谢
 
 * [aoaostar](https://github.com/aoaostar/toolbox)
