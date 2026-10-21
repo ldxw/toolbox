@@ -78,6 +78,35 @@ docker run --name toolbox -dit -p 8081:80 -v /var/toolbox:/app/www netcccyun/too
 docker pull swr.cn-east-3.myhuaweicloud.com/netcccyun/toolbox:latest
 ```
 
+### 🐳 Docker 部署（docker compose）
+
+镜像由 GitHub Actions 构建，支持多架构（`linux/amd64` / `linux/arm64`），仅发布在 GitHub Container Registry：
+
+```bash
+docker pull ghcr.io/ldxw/toolbox:latest
+```
+
+一键启动 Web + MySQL：
+
+```bash
+cp .env.docker.example .env    # 修改对外端口和数据库密码
+docker compose up -d
+```
+
+浏览器打开 `http://<服务器IP>:8080/install` 按提示安装。安装时数据库填写：
+
+| 项目 | 填写值 |
+| --- | --- |
+| 地址 | `db` |
+| 端口 | `3306` |
+| 库名 | `.env` 里的 `DB_DATABASE` |
+| 用户名 | `.env` 里的 `DB_USERNAME` |
+| 密码 | `.env` 里的 `DB_PASSWORD` |
+
+安装状态与数据保存在 `./data`（程序 `.env`、`runtime` 缓存、上传文件），删除该目录等于清空重装。升级镜像：`docker compose pull && docker compose up -d`。
+
+镜像标签：`latest` 与版本号（例如 `v1.12`）。
+
 #### 🍓 鸣谢
 
 * [aoaostar](https://github.com/aoaostar/toolbox)

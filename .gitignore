@@ -9,7 +9,11 @@
 .env
 .env.*
 !.env.example
+!.env.docker.example
 
 # 运行时生成
 install.lock
 *.log
+
+# compose 的数据卷挂载点
+/data/

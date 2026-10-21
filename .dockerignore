@@ -1,0 +1,13 @@
+.git
+.github
+.travis.yml
+vendor
+runtime/*
+data
+.env
+.env.*
+!.env.example
+!/.env.docker.example
+docker-compose.yml
+*.log
+install.lock

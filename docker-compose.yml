@@ -1,0 +1,59 @@
+# 在线工具箱 —— 一键运行（Web + MySQL）
+#
+#   cp .env.docker.example .env
+#   docker compose up -d
+#
+# 起来后浏览器打开 http://<服务器IP>:${APP_PORT}/install 按提示安装。
+# 安装时数据库填：地址 db（即下面的服务名）/ 端口 3306 / 库名与账号密码取 .env 里的值。
+
+services:
+  app:
+    image: ghcr.io/ldxw/toolbox:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: toolbox
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      # 保存 .env、runtime 缓存、上传文件；删掉这个卷等于清空安装状态
+      - ./data:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1/fpm-ping >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  db:
+    image: mysql:8.0
+    container_name: toolbox-db
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?请在 .env 中设置 DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE:-toolbox}
+      MYSQL_USER: ${DB_USERNAME:-toolbox}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?请在 .env 中设置 DB_PASSWORD}
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      # $$ 让 compose 把变量交给容器内的 shell 展开，而不是在宿主侧展开
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  db_data:
